@@ -1,0 +1,212 @@
+﻿<html>
+	<head>
+		<script src="three.min.js"></script>
+
+		<script>
+			function createScene(addFrame)
+			{
+				document.getElementsByTagName('h1')[0].style = 'color:white; text-align:center;';
+
+				renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+				renderer.domElement.style = 'width:100%; height:100%; position:fixed; top:0; left:0; z-index:-1;';
+				
+				scene = new THREE.Scene();
+				camera = new THREE.PerspectiveCamera( 30, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+				var ground = new THREE.Mesh(
+					new THREE.PlaneGeometry(13000,13000),
+					new THREE.MeshPhongMaterial({color:'goldenrod'})
+				); 
+				ground.position.set(0,-11,0);
+				ground.rotation.set(-Math.PI/2,0,0);
+				scene.add( ground );
+				
+				if (addFrame)
+				{
+					var walls = new THREE.Mesh(
+						new THREE.BoxGeometry(21,21,11),
+						new THREE.MeshPhongMaterial({color:'white',shininess:220,opacity:0.6,transparent:true,side:THREE.DoubleSide})
+					);
+					scene.add(walls);
+
+					var frame = new THREE.BoxHelper(walls);
+					frame.material.color.set('white');
+					scene.add( frame );
+				}
+
+				lights=[];
+				var colors=['dodgerblue','hotpink','cyan','fuchsia'];
+				for (var i=0; i<4; i++)
+				{
+					lights[i] = new THREE.PointLight(colors[i],1);
+					scene.add(lights[i]);
+				}
+				
+				drawFrame();
+			}
+	
+			var t = 0; 
+			function drawFrame()
+			{
+				requestAnimationFrame( drawFrame );
+				
+				t++;
+				
+				scene.rotation.x = Math.sin(t/135)/10;
+				scene.rotation.y = Math.sin(t/200)/2;
+				scene.rotation.z = Math.cos(t/111)/10;
+
+				camera.position.set(0,3,60+10*Math.sin(t/250));
+				camera.lookAt(new THREE.Vector3(0,0,0));
+
+				for (var i=0; i<4; i++)
+				{
+					var angle = t/100+Math.PI/2*i;
+					lights[i].position.set(
+						15*Math.cos(angle),
+						10*Math.sin(1.5*angle)+5,
+						10);
+				}
+				
+				renderer.render( scene, camera );
+			}		
+		</script>
+	</head>
+	
+	<body>
+	<h1></h1>
+
+		<script>
+			createScene(false); 
+			//Правоъгълника
+			//най-високо стоящата хор. плоскост 
+			var topR=new THREE.BoxGeometry(6.5,1.5,10);
+			var obj = new THREE.Mesh( topR, new THREE.MeshPhongMaterial() );
+			obj.position.set(4,7,0);
+				scene.add( obj );
+			//лява вер. пл.
+			var leftR = new THREE.BoxGeometry(1.5,8.5,10);
+			var objLeftR = new THREE.Mesh( leftR, new THREE.MeshPhongMaterial() );
+			objLeftR.position.set(1.5,2.5,0);
+				scene.add(objLeftR);
+			//дясна вер. пл.
+			var rightR = new THREE.BoxGeometry(1.5,8.5,10);
+			var objRightR = new THREE.Mesh( rightR, new THREE.MeshPhongMaterial() );
+			objRightR.position.set(6.5,2.5,0);
+				scene.add(objRightR);
+			//2рата хор. пл. от върха
+			var midtR=new THREE.BoxGeometry(6.5,1.5,10);
+			var objMTR = new THREE.Mesh( midtR, new THREE.MeshPhongMaterial() );
+			objMTR.position.set(4,4.2,0);
+				scene.add( objMTR );
+			//3тата хор. пл. от върха
+			var midlR=new THREE.BoxGeometry(6.5,1.5,10);
+			var objMLR = new THREE.Mesh( midlR, new THREE.MeshPhongMaterial() );
+			objMLR.position.set(4,1.2,0);
+				scene.add( objMLR );
+			//най-долната хор. пл.
+			var lowR=new THREE.BoxGeometry(6.5,1.5,10);
+			var objLR = new THREE.Mesh( lowR, new THREE.MeshPhongMaterial() );
+			objLR.position.set(4,-1.8,0);
+				scene.add( objLR );
+				
+			
+			//Кръст
+			//хор. пл. на кр.
+			var tHor=new THREE.BoxGeometry(7.5,1.7,10);
+			var objTH = new THREE.Mesh( tHor, new THREE.MeshPhongMaterial() );
+			objTH.position.set(-4,5,0);
+				scene.add( objTH );
+			//вер. пл. на кр.
+			var tVer = new THREE.BoxGeometry(1.7,12,10);
+			var objTV = new THREE.Mesh( tVer, new THREE.MeshPhongMaterial() );
+			objTV.position.set(-4,2.5,0);
+				scene.add(objTV);
+				
+			var extrudeSettings = { amount: 9.9, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 60 };
+			//лявата крива залеп. за кр.
+			var shapeTL = new THREE.Shape();
+			shapeTL.moveTo(0,0);
+			shapeTL.lineTo(1.02,-0.81);
+			shapeTL.quadraticCurveTo(2.78+1,0.9+1,3.26+1,1.59+1);
+			shapeTL.lineTo(3.5+1,1.59+1);
+			shapeTL.lineTo(3.5+1,3.95+1);
+			shapeTL.lineTo(3.26+1,3.95+1);
+			shapeTL.quadraticCurveTo(2.16+1,2.23+1,0,0);
+			var geometryTL = new THREE.ExtrudeGeometry( shapeTL, extrudeSettings );
+			var leftT = new THREE.Mesh( geometryTL, new THREE.MeshPhongMaterial() );	
+			leftT.position.set(-9,-1.5,-5);
+				scene.add(leftT);
+			//дясната крива залеп. за кр.
+			var shapeTR = new THREE.Shape();
+			shapeTR.moveTo(0,0);
+			shapeTR.lineTo(-0.5*(42/32),-0.29*(42/32));
+			shapeTR.lineTo(-1.02*(42/32),-0.29*(42/32));
+			shapeTR.lineTo(-1.02*(42/32),-1.22*(42/32));
+			shapeTR.lineTo(-0.5*(42/32),-1.22*(42/32));
+			shapeTR.quadraticCurveTo(0.62*(42/32),-2.05*(42/32),1.34*(42/32),-3.19*(42/32));
+			shapeTR.lineTo(2.29*(42/32),-2.5*(42/32));
+			shapeTR.quadraticCurveTo(1.36*(42/32),-1.17*(42/32),0,0);
+			var geometryTR = new THREE.ExtrudeGeometry( shapeTR, extrudeSettings );
+			var rightT = new THREE.Mesh( geometryTR, new THREE.MeshPhongMaterial() );	
+			rightT.position.set(-2.75,3.5,-5);
+				scene.add( rightT);
+			//Долната част
+			//Лява крива 
+			var shapeleft = new THREE.Shape();
+			shapeleft.moveTo(  0, 0 );
+			shapeleft.quadraticCurveTo( 1.6,1.2,2.8,3.1);
+			shapeleft.lineTo(1.8,3.8);
+			shapeleft.quadraticCurveTo(0.6,2,-0.9,0.9);
+			shapeleft.lineTo(0,0);
+			var geometry = new THREE.ExtrudeGeometry( shapeleft, extrudeSettings );
+			var leftLow = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );	
+			leftLow.position.set(-7.25,-8.25,-5);
+				scene.add( leftLow	);
+			//Ср. крива
+			var shapeMidL = new THREE.Shape();
+			shapeMidL.moveTo(  0, 0 );
+			shapeMidL.quadraticCurveTo( -1.1,1.3,-2.5,2.2);
+			shapeMidL.lineTo(-3.4,1.4);
+			shapeMidL.quadraticCurveTo(-2,0.5,-1.1,-0.8);
+			shapeMidL.lineTo(0,0);
+			var geometry1 = new THREE.ExtrudeGeometry( shapeMidL, extrudeSettings );
+			var midLow = new THREE.Mesh( geometry1, new THREE.MeshPhongMaterial() );	
+			midLow.position.set(1.5,-5.5,-5);
+				scene.add( midLow	);
+			//Форма като J
+			var shape = new THREE.Shape();
+			shape.moveTo(  5, 5.3 );
+			shape.lineTo(5,2.8);
+			shape.quadraticCurveTo( 5.45,1.55,6.72,1.2);
+			shape.lineTo(9.76,1.2);
+			shape.quadraticCurveTo(11.38,1.71,12.09,3.88);
+			shape.lineTo(11,4.48);
+			shape.quadraticCurveTo(10.4,2.71,9.76,2.4);
+			shape.lineTo(6.72,2.4);
+			shape.quadraticCurveTo(6.45,2.5,6.3,2.8);
+			shape.lineTo(6.3,5.3)
+			shape.lineTo(5,5.3);
+			var geometry1 = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+			var revJ = new THREE.Mesh( geometry1, new THREE.MeshPhongMaterial() );	
+			revJ.position.set(-8.5,-10,-5);
+				scene.add( revJ	);
+			//Дясна кр.
+			var shapeRL = new THREE.Shape();
+			shapeRL.moveTo( 0,0/* 14.83, 1.93 */);
+			shapeRL.lineTo(0.9,0.8);
+			shapeRL.quadraticCurveTo(-0.1,2.43,-1.57,3.64);
+			shapeRL.lineTo(-2.54,2.97);
+			shapeRL.quadraticCurveTo(-1.07,1.64,0,0);
+			var geometryRL = new THREE.ExtrudeGeometry( shapeRL, extrudeSettings );
+			var rightLow = new THREE.Mesh( geometryRL, new THREE.MeshPhongMaterial() );	
+			rightLow.position.set(6.8,-8,-5);
+				scene.add( rightLow	);
+			
+			
+			
+		</script>
+	</body>
+</html>
