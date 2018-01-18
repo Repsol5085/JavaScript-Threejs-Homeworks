@@ -1,0 +1,567 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<script src="three.min.js"></script>
+		<script src="human.js"></script>
+		<script src="OrbitControls.js"></script>
+		
+	</head>
+	
+	<body>
+	<audio id="music" autoplay loop>
+				<source src="music.mp3" type="audio/mpeg">
+		</audio>
+
+		<script>
+			
+			//Извършената работа е върху темплейтния файл на домашно номер 2
+			
+			
+			renderer = new THREE.WebGLRenderer({antialias:true});
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+			renderer.domElement.style = 'width:100%; height:100%; position:fixed; top:0; left:0; z-index:-1;';
+			renderer.setClearColor(0x371100);
+		
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 30, window.innerWidth/window.innerHeight, 0.1, 1000 );
+			camera.position.set(-80,40,-55);
+			camera.lookAt( new THREE.Vector3(0,15,0) );
+			//OrbitControls бяха използвани за наместването и анимирането
+			//взето от упр.
+			//var controls = new THREE.OrbitControls(camera, renderer.domElement);
+			//controls.enableDamping = true;  
+			//controls.maxPolarAngle = Math.PI/2;
+			//controls.rotateSpeed = 0.2;
+			//задаване на текстура
+			var texture = new THREE.TextureLoader().load( "seamless_metal_texture_by_hhh316-d30x412.jpg" );
+			texture.wrapS = THREE.RepeatWrapping;
+			texture.wrapT = THREE.RepeatWrapping;
+			texture.repeat.set(1,1);
+			var material = new THREE.MeshPhongMaterial({map:texture});
+			//Създаване на дрехи (броня)
+			//Обект шлем за по-лесно използване
+			var helmet= new THREE.Object3D();
+			scene.add( helmet );
+			//имената показват коя част от шлема е разглеждана
+			var geometry = new THREE.SphereGeometry( 5, 8, 32 );
+			var topofhelm = new THREE.Mesh( geometry, material ); 
+			topofhelm.rotation.x = Math.PI/2;
+			helmet.add( topofhelm );
+			var geometry = new THREE.CylinderGeometry( 5, 5.5, 7, 32 );
+			var mainhelm = new THREE.Mesh( geometry, material );
+			mainhelm.position.y=-3.5;
+			helmet.add( mainhelm );
+			//Предните части на шлема
+			var extrudeSettings = { amount: 1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 60 };
+			var frontLeft = new THREE.Shape();
+			frontLeft.moveTo(0,0);
+			frontLeft.lineTo(4.5,1);
+			frontLeft.lineTo(4.5,9);
+			frontLeft.lineTo(0,10);
+			frontLeft.lineTo(0,0);
+			var geometryTL = new THREE.ExtrudeGeometry( frontLeft, extrudeSettings );
+			var leftPart = new THREE.Mesh( geometryTL, material );	
+			leftPart.position.set(-0.2,-8,5);
+			leftPart.rotation.y = Math.PI/10;
+			leftPart.rotation.x = - Math.PI/30;
+				helmet.add(leftPart);
+			var frontRight = new THREE.Shape();
+			frontRight.moveTo(0,0);
+			frontRight.lineTo(-4.5,1);
+			frontRight.lineTo(-4.5,9);
+			frontRight.lineTo(0,10);
+			frontRight.lineTo(0,0);
+			var geometryTR = new THREE.ExtrudeGeometry( frontRight, extrudeSettings );
+			var rightPart = new THREE.Mesh( geometryTR, material );	
+			rightPart.position.set(0.2,-8,5);
+			rightPart.rotation.y = -Math.PI/10;
+			rightPart.rotation.x = -Math.PI/30;
+				helmet.add(rightPart);
+			//"дупките" за очи
+			var leftEye = new THREE.Shape();
+			leftEye.moveTo(0,0);
+			leftEye.lineTo(3,1);
+			leftEye.lineTo(3,1.5);
+			leftEye.lineTo(0,1);
+			leftEye.lineTo(0,0);
+			var geometryEL = new THREE.ExtrudeGeometry( leftEye, extrudeSettings );
+			var leftE = new THREE.Mesh( geometryEL, new THREE.MeshBasicMaterial({color:'black'}) );	
+			leftE.position.set(0.5,-2.2,4.2);
+			leftE.rotation.y = Math.PI/10;
+			leftE.rotation.x = - Math.PI/30;
+			helmet.add(leftE);
+			var rightEye = new THREE.Shape();
+			rightEye.moveTo(0,0);
+			rightEye.lineTo(-3,1);
+			rightEye.lineTo(-3,1.5);
+			rightEye.lineTo(0,1);
+			rightEye.lineTo(0,0);
+			var geometryER = new THREE.ExtrudeGeometry( rightEye, extrudeSettings );
+			var rightE = new THREE.Mesh( geometryER, new THREE.MeshBasicMaterial({color:'black'}) );	
+			rightE.position.set(-0.5,-2.2,4.2);
+			rightE.rotation.y =- Math.PI/10;
+			rightE.rotation.x = - Math.PI/30;
+			helmet.add(rightE);
+			//понеже беше правен в друг файл, а не по модела на манекена трябваше да преоразмерявам
+			helmet.scale.set(0.75,0.79,0.77);
+			
+			//2рата каска
+			var helmet2 = new THREE.Object3D();
+			helmet2.copy(helmet);
+			scene.add(helmet2);
+			helmet2.scale.set(0.75,0.79,0.77);
+			
+			//бронята по мишниците
+			var geometryArm = new THREE.CylinderGeometry( 2.25, 1.3, 10.2, 32 );
+			var leftArm = new THREE.Mesh( geometryArm, material );
+			scene.add( leftArm );
+			var rightArm = new THREE.Mesh( geometryArm, material );
+			scene.add( rightArm );
+			//по предмишниците
+			var forearm = new THREE.CylinderGeometry( 1.5, 1.3, 8.2, 32 );
+			var leftfore = new THREE.Mesh( forearm, material );
+			scene.add(leftfore);
+			var rightfore = new THREE.Mesh( forearm, material );
+			scene.add(rightfore);
+			//по време на войната явно е нямало пари за ръкавици 
+			//за другия манекен - същото
+			var rightArm2 = new THREE.Mesh( geometryArm, material );
+			scene.add( rightArm2 );
+			var leftArm2 = new THREE.Mesh( geometryArm, material );
+			scene.add( leftArm2 );
+			var rightfore2 = new THREE.Mesh( forearm, material );
+			scene.add(rightfore2);
+			var leftfore2 = new THREE.Mesh( forearm, material );
+			scene.add(leftfore2);
+			
+			//бронята по бедрата
+			var leg = new THREE.CylinderGeometry( 3, 2.5, 14, 32 );
+			var legL = new THREE.Mesh( leg, material );
+			scene.add(legL);
+			var legR = new THREE.Mesh( leg, material );
+			scene.add(legR);
+			var legR2 = new THREE.Mesh( leg, material );
+			scene.add(legR2);
+			var legL2 = new THREE.Mesh( leg, material );
+			scene.add(legL2);
+			//останалото от краката
+			var lowleg = new THREE.CylinderGeometry( 1.9, 1.5, 10, 32 );
+			var lowL = new THREE.Mesh( lowleg, material );
+			scene.add(lowL);
+			var lowR = new THREE.Mesh( lowleg, material );
+			scene.add(lowR);
+			var lowR2 = new THREE.Mesh( lowleg, material );
+			scene.add(lowR2);
+			var lowL2 = new THREE.Mesh( lowleg, material );
+			scene.add(lowL2);
+			//"ботушите" 
+			var boot = new THREE.Object3D();
+			scene.add(boot);
+			//средна част (петата беше после добавена)
+			var bootback = new THREE.CylinderGeometry(2.2,2,5,32);
+			var bootb = new THREE.Mesh(bootback,material);
+			bootb.position.set(15.3,-30.2,4);
+			bootb.rotation.z = Math.PI/2;
+			boot.add(bootb);
+			//предна
+			var bootfront = new THREE.SphereGeometry( 2.1, 32, 32, 32 );
+			var bootf = new THREE.Mesh(bootfront,material);
+			bootf.position.set(12,-30.2,4);
+			boot.add(bootf);
+			//пета
+			var booth = new THREE.SphereGeometry( 2, 32, 32, 32 );
+			var bootbb = new THREE.Mesh(booth,material);
+			bootbb.position.set(17,-30.2,4);
+			boot.add(bootbb);
+			//ляв ботуш
+			var bootL = new THREE.Object3D();
+			bootL.copy(boot);
+			scene.add(bootL);
+			//на другия човечец
+			var bootL2 = new THREE.Object3D();
+			bootL2.copy(boot);
+			bootL2.rotation.y = Math.PI;
+			scene.add(bootL2);
+			var boot2 = new THREE.Object3D();
+			boot2.copy(boot);
+			boot2.rotation.y = Math.PI;
+				scene.add(boot2);
+			//част покриваща таза
+			var pan = new THREE.Object3D();
+			scene.add(pan);
+			//щеше да е по-сложна пъвоначално
+			var extrudeSettingsP = { amount: 4, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 60 };
+			var pants = new THREE.Shape();
+			pants.moveTo(0,0);
+			pants.quadraticCurveTo(2,1,3,2);
+			pants.lineTo(3,6);
+			pants.lineTo(-3,6);
+			pants.lineTo(-3,2);
+			pants.quadraticCurveTo(-2,1,0,0);
+			var paa = new THREE.ExtrudeGeometry( pants, extrudeSettingsP );
+			var ppd = new THREE.Mesh( paa, material );	
+			ppd.position.set(-9,-1.5,-5);
+				pan.add(ppd);
+				
+			//преоразмеряване 
+			pan.scale.set(1.7,1.3,1.68);
+			//за другия гащите 
+			//... много странно как и двамата имат еднакви брони... дали не са на една страна... не знам, не ги познавам
+			//може да е такъв стандарта ... модата
+			var pan2 = new THREE.Object3D();
+			pan2.copy(pan);
+			scene.add(pan2);
+			
+			//частта по торса 
+			var armor = new THREE.Object3D();
+			scene.add(armor);
+			var extrudeSettingsCh = { amount: 7, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 60 };
+			var chest = new THREE.Shape();
+			chest.moveTo(0,0);
+			chest.quadraticCurveTo(3,0.5,4,1);
+			chest.lineTo(4.5,9);
+			chest.lineTo(5,10);
+			chest.lineTo(5,15.5);
+			chest.quadraticCurveTo(3,16.8,2,16.8);
+			chest.quadraticCurveTo(0,15,-2,16.8);
+			chest.quadraticCurveTo(-3,16.8,-5,15.5);
+			chest.lineTo(-5,10);
+			chest.lineTo(-4.5,9);
+			chest.lineTo(-4,1);
+			chest.quadraticCurveTo(-3,0.5,0,0);
+			var chestPart = new THREE.ExtrudeGeometry( chest, extrudeSettingsCh );
+			var upperChest = new THREE.Mesh( chestPart, material );	
+				armor.add(upperChest);
+			armor.rotation.y = Math.PI/2;
+			armor.position.set(17,5.5,0);
+			
+			//2рата такава част
+			var armor2 = new THREE.Object3D();
+			armor2.copy(armor);
+			scene.add(armor2);
+			
+			
+			//мечът
+			var sword = new THREE.Object3D();
+			scene.add(sword);
+			//острието
+			var extrSetBlade = { amount: 0.1, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.1, bevelThickness: 0.1, curveSegments: 60 };
+			var blade = new THREE.Shape();
+			blade.moveTo(0,0);
+			blade.lineTo(0.35,0);
+			blade.lineTo(0.35,10);
+			blade.lineTo(0,10.5);
+			blade.lineTo(-0.35,10);
+			blade.lineTo(-0.35,0);
+			blade.lineTo(0,0);
+			var swordBlade = new THREE.ExtrudeGeometry( blade, extrSetBlade );
+			var swbl = new THREE.Mesh( swordBlade, material );	
+			sword.add(swbl);
+			//гарда
+			var guard = new THREE.BoxGeometry(4,0.5,0.6);
+			var swg= new THREE.Mesh( guard, material ); 
+			sword.add(swg);
+			//дръжката
+			var hilt = new THREE.CylinderGeometry( 0.25, 0.25, 3, 32 );
+			var leather = new THREE.Color("rgb(146, 123, 81)");
+			var hiltCol = new THREE.MeshPhongMaterial({color:leather});
+			var swh = new THREE.Mesh(hilt, hiltCol);
+			swh.position.y= -1.5;
+			sword.add(swh);
+			//долната част на дръжката
+			var pommel = new THREE.SphereGeometry( 0.5, 4, 12 );
+			var swp = new THREE.Mesh( pommel, material ); 
+			swp.position.y=-3;
+			sword.add( swp );			
+			sword.scale.set(2,2,2);
+			sword.rotation.z=Math.PI/2;
+			sword.position.set(18,-3,-9.5);
+			//2ри меч
+			var sword2 = new THREE.Object3D();
+			sword2.copy(sword);
+			sword2.rotation.y=Math.PI;
+			sword2.position.set(1,2,1);
+			scene.add(sword2);
+			//текстура за тревата (от Solution S12 E02) картинката от гугъл
+			var grass = new THREE.TextureLoader().load( "Grass September seamless texture (1 of 1).jpg" );
+			grass.wrapS = THREE.RepeatWrapping;
+			grass.wrapT = THREE.RepeatWrapping;
+			grass.repeat.set(100,100);
+			
+			//base - взето от упр и променяно
+			var base = new THREE.Mesh(
+				new THREE.PlaneGeometry(5000,5000),
+				new THREE.MeshPhongMaterial({map:grass,shininess:70})
+			);
+			base.lookAt(new THREE.Vector3(0,1,0));
+			base.position.y = -34;
+			scene.add( base );
+			
+			
+			//задаване на мъгла
+			scene.fog = new THREE.Fog(0x371100,10,250);
+			
+			
+			// светлината
+			var light = new THREE.PointLight(0xef5b06,1);
+				light.position.set(30,15,0);
+				scene.add( light );
+			var light = new THREE.PointLight(0xef5b06,0.5);
+				light.position.set(-30,15,-20);
+				scene.add( light );
+			//анимиране на сцената
+			var t = 0; // време
+			//от темплейтния манекен домашно
+			function drawFrame()
+			{
+				requestAnimationFrame( drawFrame );
+				if (animate) animate(t++);
+				//controls.update();
+				renderer.render( scene, camera );
+				
+			}		
+			
+			
+			// манекенът - от Вашия файл human.js от 2рото домашно (използвани са и функциите му за преместване и въртене)
+			//създаване на 1вия и след това добавям към частите на тялото му елементите от бронята, за да се движат заедно
+			man1 = мъжествен();
+			man1.position.x = -20;
+			man1.глава.rotation.set(0,0,-0.25);
+			man1.глава.children[0].add(helmet);
+			man1.тяло.children[0].add(armor);
+			man1.л_ръка.children[0].add(leftArm);
+			man1.д_ръка.children[0].add(rightArm);
+			man1.л_лакът.children[0].add(leftfore);
+			man1.д_лакът.children[0].add(rightfore);
+			man1.д_крак.children[0].add(legR);
+			man1.л_крак.children[0].add(legL);
+			man1.л_коляно.children[0].add(lowL);
+			man1.д_коляно.children[0].add(lowR);
+			man1.л_глезен.children[0].add(boot);
+			man1.д_глезен.children[0].add(bootL);
+			man1.д_китка.children[0].add(sword2);
+			//наместване на добавените елементи
+			helmet.position.set(0,4.6,0);
+			helmet.rotation.y =Math.PI/2;
+			armor.position.set(-3.5,0,0);
+			leftArm.position.set(0,5.5,0);
+			leftArm.rotation.z = Math.PI;
+			leftfore.rotation.z=Math.PI;
+			leftfore.position.y = 4.5;
+			rightArm.position.set(0,5.5,0);
+			rightArm.rotation.z = Math.PI;
+			rightfore.rotation.z=Math.PI;
+			rightfore.position.y = 4.5;
+			legL.position.y=7.5;
+			legL.rotation.z = Math.PI;
+			legR.position.y=7.5;
+			legR.rotation.z = Math.PI;
+			lowL.position.y=6;
+			lowL.rotation.z = Math.PI;
+			lowR.position.y=6;
+			lowR.rotation.z = Math.PI;
+			pan.rotation.y = Math.PI/2;
+			pan.position.set(-16.76,-0.8,-15.5);
+			boot.rotation.z = Math.PI/2;
+			boot.position.set(-30,-12,-4);
+			bootL.rotation.z = Math.PI/2;
+			bootL.position.set(-30,-12,-4);
+			
+			//втори манекен , "залепяне" на бронята към съответните части на тялото
+			man2 = мъжествен();
+			man2.position.x = 20;
+			man2.rotation.y = Math.PI;
+			man2.глава.rotation.set(0,0,-0.25);
+			man2.глава.children[0].add(helmet2);
+			man2.тяло.children[0].add(armor2);
+			man2.л_ръка.children[0].add(leftArm2);
+			man2.д_ръка.children[0].add(rightArm2);
+			man2.л_лакът.children[0].add(leftfore2);
+			man2.д_лакът.children[0].add(rightfore2);
+			man2.д_крак.children[0].add(legR2);
+			man2.л_крак.children[0].add(legL2);
+			man2.л_коляно.children[0].add(lowL2);
+			man2.д_коляно.children[0].add(lowR2);
+			man2.л_глезен.children[0].add(boot2);
+			man2.д_глезен.children[0].add(bootL2);
+			man2.д_китка.children[0].add(sword);
+			//наместване на добавените елементи
+			helmet2.position.set(0,4.6,0);
+			helmet2.rotation.y =Math.PI/2;
+			armor2.position.set(-3.5,0,0);
+			leftArm2.position.set(0,5.5,0);
+			leftArm2.rotation.z = Math.PI;
+			leftfore2.rotation.z=Math.PI;
+			leftfore2.position.y = 4.5;
+			rightArm2.position.set(0,5.5,0);
+			rightArm2.rotation.z = Math.PI;
+			rightfore2.rotation.z=Math.PI;
+			rightfore2.position.y = 4.5;
+			legL2.position.y=7.5;
+			legL2.rotation.z = Math.PI;
+			legR2.position.y=7.5;
+			legR2.rotation.z = Math.PI;
+			lowL2.position.y=6;
+			lowL2.rotation.z = Math.PI;
+			lowR2.position.y=6;
+			lowR2.rotation.z = Math.PI;
+			pan2.rotation.y = Math.PI/2;
+			pan2.position.set(26.74,-0.8,-15.5);
+			boot2.rotation.z = Math.PI/2;
+			boot2.position.set(30,-12.5,4);
+			bootL2.rotation.z = Math.PI/2;
+			bootL2.position.set(30,-12.5,4);
+			sword.rotation.y = Math.PI;
+			sword.position.set(+1.2,+3,-0.3);
+			
+			// анимация на човечето
+			animate = function (w)
+			{
+				//не знам защо реших да го правя това ама после стана само по-тръдно...
+				var hh = w*2;
+				var t = hh%2550-100;
+				//"сцена" едно (първата сцена от няколко които си надрасках на лист за да имам нещо да следвам)
+				var newT = Math.abs(sin(89));
+				if(t<=0)
+				{
+					sword2.position.set(1.2,3,0.3);
+					sword2.rotation.z=Math.PI/2;
+					man1.глава.rotation.set(0,0,-0.25);
+					
+				}
+				else if(t<90)
+				{	//наместване и двамата в пространството
+					man1.л_крак.врът(0,0,-20*Math.abs(sin(t)));
+					man1.л_коляно.врът(0,0,20*Math.abs(sin(t)));
+					man1.д_крак.врът(0,0,20*Math.abs(sin(t)));
+					man1.таз.position.x = 10*Math.abs(sin(t));
+					man1.д_коляно.врът(0,0,2*Math.abs(sin(t)));
+					pan.position.x=10*Math.abs(sin(t))-16.76;//понеже гащите не са закачени трябва да се движат по начина на манекена за да не отлетят
+					man1.таз.position.y = -Math.abs(sin(t));
+					pan.position.y = -Math.abs(sin(t)) - 1.8;
+					man1.л_ръка.врът(0,0,20*Math.abs(sin(t)));
+					man1.д_ръка.врът(-80*Math.abs(sin(t)),20*Math.abs(sin(t)),-50*Math.abs(sin(t)));
+					man1.д_лакът.врът(20*Math.abs(sin(t)),90*Math.abs(sin(t)),-90*Math.abs(sin(t)));
+					//движението на 2ри манекен
+					man2.д_лакът.врът(0,0,-90*Math.abs(sin(t)));
+					man2.д_ръка.врът(0,0,80*Math.abs(sin(t)));
+					man2.position.z = -5*Math.abs(sin(t));
+					pan2.position.z=-5*Math.abs(sin(t))-15.5;
+					man2.л_крак.врът(10*Math.abs(sin(t)),0,5*Math.abs(sin(t)));
+					man2.д_коляно.врът(0,0,10*Math.abs(sin(t)));
+					man2.д_крак.врът(-5*Math.abs(sin(t)),0,-10*Math.abs(sin(t)));
+					pan2.position.y=-Math.abs(sin(t))-1.8;
+					man2.таз.position.y = -Math.abs(sin(t));
+					man2.position.x=-Math.abs(sin(t))+20;
+					pan2.position.x=-Math.abs(sin(t))+26.74;
+					man2.л_ръка.врът(8*Math.abs(sin(t)),0,0);
+					
+				}
+				//преместване във втората драсканица на шаблонния лист
+				else if(t<180)
+				{
+					//по-лесно като почват от 0 пак за да не прескачат изведнъж
+					var newT =t-90;
+					//крайния синус за да мога да продължа там от където спрях на предната сцена
+					var oldSin = Math.abs(sin(89));
+					man1.д_ръка.врът(-80*oldSin+20*Math.abs(sin(newT)),20*oldSin-100*Math.abs(sin(newT)),-50*oldSin-20*Math.abs(sin(newT)));
+					man1.д_лакът.врът(20*oldSin+50*Math.abs(sin(newT)),90*oldSin,-90*oldSin);
+					man1.тяло.врът(0,10*Math.abs(sin(newT)),0);
+					man1.л_лакът.врът(0,0,-50*Math.abs(sin(newT)));
+					
+					man2.тяло.врът(0,50*Math.abs(sin(newT)),0);
+					man2.глава.врът(0,-35*Math.abs(sin(newT)),0);
+					man2.л_ръка.врът(8*oldSin,0,20*Math.abs(sin(newT)));
+					man2.л_лакът.врът(0,0,-30*Math.abs(sin(newT)));
+					man2.д_ръка.врът(0,20*Math.abs(sin(newT)),80*oldSin-40*Math.abs(sin(newT)));
+					man2.д_лакът.врът(0,0,-90*oldSin+20*Math.abs(sin(newT)));
+					man2.д_китка.врът(0,10*Math.abs(sin(newT)),0);
+					
+				}
+				else if(t<540)
+				{
+					//пак за по-лесно прява това с Т
+					var T = t - 180;
+					//стария синус... май не го ползвам
+					var oldSin = Math.abs(sin(179));
+					//коорд на нещата които ще движа тук каквито бяха в края на последната сцена
+					var rArmy = 20*Math.abs(sin(89));
+					var rHandy = 10*Math.abs(sin(89));
+					var rArmz = 80*Math.abs(sin(89))-40*Math.abs(sin(89));
+					var r2Armx = -60*Math.abs(sin(89));
+					var r2Army = -80*Math.abs(sin(89));
+					var r2Armz = -70*Math.abs(sin(89));
+					var rForez = -90*Math.abs(sin(89))+20*Math.abs(sin(89));
+					//движение пак
+					//SLOW MOTION
+					man2.д_ръка.врът(-20*Math.abs(sin(T/4)),rArmy,rArmz-90*Math.abs(sin(T/8)));
+					man2.д_лакът.врът(0,0,rForez+50*Math.abs(sin(T/4)));
+					man2.д_китка.врът(0,rHandy-20*Math.abs(sin(T/4)),+20*Math.abs(sin(T/4)));
+					man1.д_ръка.врът(r2Armx - 12*Math.abs(sin(T/4)),r2Army -22*Math.abs(sin(T/4)),r2Armz);
+					//движение на меча
+					if(t>450)
+					{
+						sword2.position.y += 0.08;
+						sword2.rotation.z -= 0.005;
+					}
+					camera.position.set(100,60,54);
+					camera.lookAt(new THREE.Vector3(0,15,0));
+				
+				}
+				
+				else if(t<1600)
+				{
+					//ново време за синусите
+					var tt = t - 540;
+					//премествания и положенията в края на последната сцена 
+					//SLOWER MOTION
+					man1.глава.врът(0,0,-40*Math.abs(sin(tt/30)));
+					var rArmx =  -20*Math.abs(sin(359/4));
+					var rArmy = 20*Math.abs(sin(89));
+					var rArmz = 40*Math.abs(sin(89)) -90*Math.abs(sin(359/8));
+					var lFore2z = -50*Math.abs(sin(89));
+					if(t<1200)
+					{
+						sword2.position.y += 0.04;
+						sword2.rotation.z -= 0.0025;
+						man2.д_ръка.врът(rArmx,rArmy,rArmz - 20*Math.abs(sin(tt/30)));
+						camera.position.set(30,-30,75);
+						camera.lookAt(new THREE.Vector3(0,-20,0));
+					}
+					//SLOWEST MOTION
+					else if(t<1400)
+					{
+						sword2.position.y += 0.02;
+						sword2.position.x += 0.0025;
+						
+					}
+					man1.л_лакът.врът(0,0,lFore2z-50*Math.abs(sin(tt/30)));
+					if(t>1200)
+					{
+						camera.position.set(40,0,-55);
+						camera.lookAt(new THREE.Vector3(-20,20,0));
+					}
+				}
+				else if (t<2000)
+				{
+					camera.position.z-=0.5;
+					camera.position.x+=0.5;
+					camera.position.y+=0.1;
+					camera.lookAt(new THREE.Vector3(-20,20,0));
+				}
+				else if(t<2500)
+				{
+					camera.position.z-=1;
+					camera.position.x+=1.25;
+					camera.position.y+=0.6;
+					camera.lookAt(new THREE.Vector3(-20,20,0));
+				}
+				
+			}
+
+			drawFrame();
+		</script>
+	</body>
+</html>
